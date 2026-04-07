@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="TaxiBookingService.API\TaxiBookingService.API.csproj" />
+  <Project Path="TaxiBookingService.Common\TaxiBookingService.Common.csproj" />
+  <Project Path="TaxiBookingService.Models\TaxiBookingService.Models.csproj" />
+  <Project Path="TaxiBookingService.Repositories\TaxiBookingService.Repositories.csproj" />
+  <Project Path="TaxiBookingService.Services\TaxiBookingService.Services.csproj" />
+</Solution>
