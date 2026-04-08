@@ -1,10 +1,16 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.Text;
+using TaxiBookingService.Repositories;
 using TaxiBookingService.Repositories.Interfaces;
+using TaxiBookingService.Repositories.Persistence;
 using TaxiBookingService.Repositories.Repositories;
+using TaxiBookingService.Services.Implementations;
+using TaxiBookingService.Services.Interfaces;
 
 namespace TaxiBookingService.Common.Extensions
 {
@@ -20,19 +26,18 @@ namespace TaxiBookingService.Common.Extensions
 
             return services;
         }
+
         public static IServiceCollection AddRepositories(
-        this IServiceCollection services,
-        (Type interfaceType, Type implementationType)[] repositoryMappings,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+            this IServiceCollection services)
         {
-            foreach (var (interfaceType, implementationType) in repositoryMappings)
-            {
-                var descriptor = new ServiceDescriptor(interfaceType, implementationType, lifetime);
-                services.Add(descriptor);
-            }
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRideRepository, RideRepository>();
+            services.AddScoped<IRatingRepository, RatingRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }
+
         public static IServiceCollection AddApplicationServices(
             this IServiceCollection services)
         {
@@ -43,10 +48,9 @@ namespace TaxiBookingService.Common.Extensions
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<IFareService, FareService>();
-            services.AddScoped<IDriverMatchingService, DriverMatchingService>();
             services.AddScoped<JwtService>();
-            services.AddSingleton<IDriverLocationCacheService, DriverLocationStore>();
             services.AddHttpClient<IMapService, OsrmMapService>();
+            services.AddSingleton<IDriverLocationStoreService, DriverLocationStoreService>();
 
             return services;
         }
@@ -103,36 +107,26 @@ namespace TaxiBookingService.Common.Extensions
         {
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Taxi Booking API",
                     Version = "v1",
                     Description = "Production-grade Taxi Booking Service API"
                 });
 
-                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Type = SecuritySchemeType.Http,
                     Scheme = "bearer",
                     BearerFormat = "JWT",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    In = ParameterLocation.Header,
                     Description = "Enter your JWT token"
                 });
 
-                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                        {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                            {
-                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = []
                 });
             });
 

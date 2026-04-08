@@ -16,4 +16,4 @@ namespace TaxiBookingService.Models.DTOs
         public int CabType { get; set; }
     }
 }
-}
+

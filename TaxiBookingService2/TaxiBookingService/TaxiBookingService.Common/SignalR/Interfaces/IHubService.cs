@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TaxiBookingService.Services.Interfaces
+namespace TaxiBookingService.Common.SignalR.Interfaces
 {
     public interface IHubService
     {

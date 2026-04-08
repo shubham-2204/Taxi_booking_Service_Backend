@@ -20,6 +20,5 @@ namespace TaxiBookingService.Models.Models
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         public ICollection<Rating> RatingsGiven { get; set; } = new List<Rating>();
         public ICollection<Rating> RatingsReceived { get; set; } = new List<Rating>();
-        public DriverLocation? DriverLocation { get; set; }
     }
 }

@@ -1,26 +1,24 @@
-using Microsoft.AspNet.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
-using TaxiBookingService.Services.Interfaces;
-using TaxiBookingService;
+using Microsoft.AspNetCore.SignalR;
+using TaxiBookingService.Common.SignalR.Interfaces;
 
 
-namespace TaxiBookingService.Services.Implementations
+namespace TaxiBookingService.Common.SignalR
 {
     public class HubService : IHubService
     {
         private readonly IHubContext<RideHub> _hubContext;
+        private readonly IConnectionHandler _connectionHandler;
 
-        public HubService(IHubContext<RideHub> hubContext)
+
+        public HubService(IHubContext<RideHub> hubContext, IConnectionHandler connectionHandler)
         {
             _hubContext = hubContext;
+            _connectionHandler = connectionHandler;
         }
 
         public async Task NotifyDriverAsync(int driverId, string eventName, object data)
         {
-            string? connectionId = _hubContext.ConnectionStore.GetConnectionId(driverId);
+            string? connectionId = _connectionHandler.GetConnectionId(driverId);
 
             if (connectionId is not null)
                 await _hubContext.Clients
@@ -30,7 +28,7 @@ namespace TaxiBookingService.Services.Implementations
 
         public async Task NotifyPassengerAsync(int passengerId, string eventName, object data)
         {
-            string? connectionId = ConnectionStore.GetConnectionId(passengerId);
+            string? connectionId = _connectionHandler.GetConnectionId(passengerId);
 
             if (connectionId is not null)
                 await _hubContext.Clients
@@ -45,3 +43,4 @@ namespace TaxiBookingService.Services.Implementations
                 .SendAsync(eventName, data);
         }
     }
+}

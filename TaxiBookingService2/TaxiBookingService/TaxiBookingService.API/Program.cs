@@ -1,44 +1,50 @@
-
 using TaxiBookingService.Common.Extensions;
-using TaxiBookingService.Repositories;
-using TaxiBookingService.Repositories.Interfaces;
-using TaxiBookingService.Repositories.Repositories;
-using TaxiBookingService.Services.Interfaces;
+using TaxiBookingService.Common.Middleware;
+using TaxiBookingService.Common.SignalR;
 
-namespace TBS.API
+namespace TaxiBookingService.API
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            
+            builder.Services.AddSignalR();
+            builder.Services.AddDatabase(builder.Configuration);
+            builder.Services.AddRepositories();
+            builder.Services.AddApplicationServices();
+            builder.Services.AddJwtAuthentication(builder.Configuration);
+            builder.Services.AddSwaggerWithJwt();
 
-            var repositoryMappings = new (Type, Type)[]
+            builder.Services.AddCors(options =>
             {
-                (typeof(IUnitOfWork), typeof(UnitOfWork)),
-                (typeof(IDriverLocationStoreService), typeof(DriverLocationStore)),
-            };
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.WithOrigins("http://localhost:4200")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
 
+            WebApplication app = builder.Build();
 
-            ServiceExtensions.AddRepositories(builder.Services,repositoryMappings);
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseHttpsRedirection();
-
+            app.UseCors("CorsPolicy");
+            app.UseAuthentication();
             app.UseAuthorization();
-
-
             app.MapControllers();
+            app.MapHub<RideHub>("/hubs/ride");
+            
 
             app.Run();
         }

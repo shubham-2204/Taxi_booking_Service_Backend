@@ -62,7 +62,7 @@
                 _unitOfWork.Users.Update(driver);
                 await _unitOfWork.SaveChangesAsync();
 
-                _locationCache.UpdateAvailability(driverId, isAvailable);
+                
 
                 string message = isAvailable ? "You are now online" : "You are now offline";
 

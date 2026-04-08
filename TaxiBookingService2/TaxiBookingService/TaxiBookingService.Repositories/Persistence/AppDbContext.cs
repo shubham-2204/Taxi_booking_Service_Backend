@@ -62,10 +62,6 @@ namespace TaxiBookingService.Repositories.Persistence
                     .HasForeignKey(r => r.RatedDriverId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(u => u.DriverLocation)
-                    .WithOne(dl => dl.Driver)
-                    .HasForeignKey<DriverLocation>(dl => dl.DriverId)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Vehicle>(entity =>
