@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
+using TaxiBookingService.Common.Helpers;
+using TaxiBookingService.Common.SignalR;
+using TaxiBookingService.Common.SignalR.Interfaces;
 using TaxiBookingService.Repositories;
 using TaxiBookingService.Repositories.Interfaces;
 using TaxiBookingService.Repositories.Persistence;
@@ -48,9 +51,13 @@ namespace TaxiBookingService.Common.Extensions
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<IFareService, FareService>();
+            services.AddScoped<IHaversineHelper,HaversineHelper>();
+            services.AddScoped<IOtpHelper, OtpHelper>();
             services.AddScoped<JwtService>();
             services.AddHttpClient<IMapService, OsrmMapService>();
             services.AddSingleton<IDriverLocationStoreService, DriverLocationStoreService>();
+            services.AddSingleton<IConnectionHandler, ConnectionHandler>();
+            services.AddSingleton<IHubService, HubService>();
 
             return services;
         }

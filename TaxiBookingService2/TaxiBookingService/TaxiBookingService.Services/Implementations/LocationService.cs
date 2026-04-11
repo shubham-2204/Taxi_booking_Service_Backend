@@ -9,15 +9,18 @@ public class LocationService : ILocationService
     private readonly IDriverLocationStoreService _driverLocationStore;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapService _mapService;
+    private readonly IHaversineHelper _haversineHelper;
 
     public LocationService(
         IDriverLocationStoreService driverLocationStore,
         IUnitOfWork unitOfWork,
-        IMapService mapService)
+        IMapService mapService,
+        IHaversineHelper haversineHelper)
     {
         _driverLocationStore = driverLocationStore;
         _unitOfWork = unitOfWork;
         _mapService = mapService;
+        _haversineHelper = haversineHelper;
     }
 
     public void UpdateDriverLocation(
@@ -39,7 +42,7 @@ public class LocationService : ILocationService
             .Where(d =>
                 d.IsAvailable &&
                 d.CabType == cabType &&
-                HaversineHelper.CalculateDistance(
+                _haversineHelper.CalculateDistance(
                     latitude, longitude,
                     d.Latitude, d.Longitude) <= radiusKm)
             .ToList();
@@ -66,7 +69,7 @@ public class LocationService : ILocationService
                 Latitude = driverLocation.Latitude,
                 Longitude = driverLocation.Longitude,
                 DistanceKm = Math.Round(
-                    HaversineHelper.CalculateDistance(
+                    _haversineHelper.CalculateDistance(
                         latitude, longitude,
                         driverLocation.Latitude,
                         driverLocation.Longitude), 2),
@@ -91,7 +94,7 @@ public class LocationService : ILocationService
             return new List<int>();
 
         List<(DriverLocationDto Driver, double StraightKm)> top7 = filtered
-            .Select(d => (Driver: d, StraightKm: HaversineHelper.CalculateDistance(
+            .Select(d => (Driver: d, StraightKm: _haversineHelper.CalculateDistance(
                 pickupLat, pickupLng, d.Latitude, d.Longitude)))
             .OrderBy(x => x.StraightKm)
             .Take(7)

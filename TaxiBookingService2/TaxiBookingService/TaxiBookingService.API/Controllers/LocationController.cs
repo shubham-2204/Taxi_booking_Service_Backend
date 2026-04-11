@@ -29,10 +29,16 @@ public class LocationController : ControllerBase
             await _locationService.GetNearbyDriversAsync(
                 latitude, longitude, cabType, radiusKm);
 
-        if (!drivers.Any())
-            return NotFound(new { message = "No drivers found nearby." });
+        //if (!drivers.Any())
+        //    return NotFound(new { message = "No drivers found nearby." });
 
-        return Ok(new { drivers });
+        //return Ok(new { drivers });
+
+        return Ok(new
+        {
+            drivers = drivers ?? Enumerable.Empty<NearbyDriverDto>()
+        });
+
     }
 
     [HttpPut("update")]

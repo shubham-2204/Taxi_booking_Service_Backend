@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using TaxiBookingService.Services.Interfaces;
 
-namespace TaxiBookingService.Common.Helpers
+namespace TaxiBookingService.Common.Helpers;
+
+public class OtpHelper : IOtpHelper
 {
-    public static class OtpHelper
+    public string GenerateOtp()
     {
-        public static string GenerateOtp()
-        {
-            Random random = new Random();
-            return random.Next(1000, 10000).ToString();
-        }
+        Random random = new Random();
+        return random.Next(1000, 10000).ToString();
+    }
 
-        public static bool IsExpired(DateTime? otpExpiresAt)
-        {
-            if (otpExpiresAt == null)
-                return true;
+    public bool IsExpired(DateTime? otpExpiresAt)
+    {
+        if (otpExpiresAt == null)
+            return true;
 
-            return DateTime.UtcNow > otpExpiresAt;
-        }
+        return DateTime.UtcNow > otpExpiresAt;
     }
 }

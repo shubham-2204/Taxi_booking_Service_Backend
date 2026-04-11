@@ -16,18 +16,21 @@ namespace TaxiBookingService.Services.Implementations
         private readonly IFareService _fareService;
         private readonly IMapService _mapService;
         private readonly ILocationService _locationService;
+        private readonly IOtpHelper _otpHelper;
 
         public RideService(
             IUnitOfWork unitOfWork,
             IFareService fareService,
             IMapService mapService,
-            ILocationService locationService
+            ILocationService locationService,
+            IOtpHelper otpHelper
             )
         {
             _unitOfWork = unitOfWork;
             _fareService = fareService;
             _mapService = mapService;
             _locationService = locationService;
+            _otpHelper = otpHelper;
         }
 
         public async Task<ApiResponseDto<RideEstimateResponseDto>> GetEstimateAsync(
@@ -225,7 +228,7 @@ namespace TaxiBookingService.Services.Implementations
                 return ApiResponseDto<RideResponseDto>.FailureResponse(
                     "OTP verification is not valid at this stage", 400);
 
-            if (OtpHelper.IsExpired(ride.OtpExpiresAt))
+            if (_otpHelper.IsExpired(ride.OtpExpiresAt))
                 return ApiResponseDto<RideResponseDto>.FailureResponse(
                     "OTP has expired", 410);
 
